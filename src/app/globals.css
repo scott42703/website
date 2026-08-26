@@ -1,0 +1,457 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Design tokens
+   A restrained, Apple-adjacent system: near-black on near-white,
+   one accent, hairline borders, and layered shadows for depth
+   instead of drawn bevels. All chrome reads from here.
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+
+  /* Desktop */
+  --desk-bg: #1c2333;
+
+  /* Window + chrome surfaces */
+  --window: #ffffff;
+  --titlebar: #f6f6f8;
+  --sidebar: #f2f2f4;
+  --chrome: #f6f6f8;
+  --chrome-alt: #ececef;
+  --chrome-deep: #e0e0e4;
+
+  /* Content surfaces */
+  --surface: #ffffff;
+  --surface-alt: #f7f7f9;
+  --surface-sunken: #efeff2;
+
+  /* Hairlines, alpha, so they sit correctly on any surface. */
+  --hairline: rgba(0, 0, 0, 0.11);
+  --hairline-strong: rgba(0, 0, 0, 0.18);
+  --edge-highlight: rgba(255, 255, 255, 0.7);
+
+  /* Text */
+  --ink: #1d1d1f;
+  --ink-soft: #52525a;
+  --ink-faint: #6b6b73;
+  --ink-invert: #ffffff;
+
+  /* Accent, one blue, used sparingly. */
+  --accent: #0068d6;
+  --accent-hover: #0071e3;
+  --accent-soft: #f2f7ff;
+  --accent-ink: #ffffff;
+
+  --highlight: #0068d6;
+  --highlight-ink: #ffffff;
+
+  /* Depth: a hairline ring plus two shadow layers. */
+  --shadow-window:
+    0 0 0 0.5px rgba(0, 0, 0, 0.16), 0 10px 24px rgba(0, 0, 0, 0.16),
+    0 30px 60px rgba(0, 0, 0, 0.14);
+  --shadow-window-idle:
+    0 0 0 0.5px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.1),
+    0 14px 30px rgba(0, 0, 0, 0.08);
+  --shadow-menu:
+    0 0 0 0.5px rgba(0, 0, 0, 0.14), 0 8px 22px rgba(0, 0, 0, 0.18);
+  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.06);
+
+  /* Translucent materials */
+  --material-bar: rgba(250, 250, 252, 0.72);
+  --material-dock: rgba(250, 250, 252, 0.6);
+  --material-border: rgba(255, 255, 255, 0.55);
+  --menubar-ink: #1d1d1f;
+
+  --marker: #a1590a;
+  --marker-bg: #fdf3e3;
+
+  --radius-window: 11px;
+  --radius-panel: 9px;
+  --radius-control: 6px;
+}
+
+html.theme-dark {
+  color-scheme: dark;
+
+  --desk-bg: #0d0f14;
+
+  --window: #1e1e20;
+  --titlebar: #2a2a2d;
+  --sidebar: #232326;
+  --chrome: #2a2a2d;
+  --chrome-alt: #333338;
+  --chrome-deep: #3c3c42;
+
+  --surface: #1e1e20;
+  --surface-alt: #26262a;
+  --surface-sunken: #171719;
+
+  --hairline: rgba(255, 255, 255, 0.12);
+  --hairline-strong: rgba(255, 255, 255, 0.2);
+  --edge-highlight: rgba(255, 255, 255, 0.09);
+
+  --ink: #f5f5f7;
+  --ink-soft: #b4b4bb;
+  --ink-faint: #98989f;
+  --ink-invert: #1d1d1f;
+
+  --accent: #3b9bff;
+  --accent-hover: #52a8ff;
+  --accent-soft: #16263a;
+  --accent-ink: #06121f;
+
+  --highlight: #0a63c9;
+  --highlight-ink: #ffffff;
+
+  --shadow-window:
+    0 0 0 0.5px rgba(255, 255, 255, 0.09), 0 12px 28px rgba(0, 0, 0, 0.55),
+    0 34px 68px rgba(0, 0, 0, 0.45);
+  --shadow-window-idle:
+    0 0 0 0.5px rgba(255, 255, 255, 0.06), 0 5px 14px rgba(0, 0, 0, 0.4),
+    0 16px 32px rgba(0, 0, 0, 0.3);
+  --shadow-menu:
+    0 0 0 0.5px rgba(255, 255, 255, 0.1), 0 10px 26px rgba(0, 0, 0, 0.55);
+  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+  --material-bar: rgba(28, 28, 30, 0.68);
+  --material-dock: rgba(34, 34, 38, 0.58);
+  --material-border: rgba(255, 255, 255, 0.1);
+  --menubar-ink: #f5f5f7;
+
+  --marker: #f0b45e;
+  --marker-bg: #33280f;
+}
+
+@theme inline {
+  --color-desk: var(--desk-bg);
+  --color-window: var(--window);
+  --color-titlebar: var(--titlebar);
+  --color-sidebar: var(--sidebar);
+  --color-chrome: var(--chrome);
+  --color-chrome-alt: var(--chrome-alt);
+  --color-chrome-deep: var(--chrome-deep);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-hairline: var(--hairline);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-ink-invert: var(--ink-invert);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-highlight: var(--highlight);
+  --color-highlight-ink: var(--highlight-ink);
+  --color-marker: var(--marker);
+  --color-marker-bg: var(--marker-bg);
+
+  --font-sans:
+    var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+    sans-serif;
+  --font-display:
+    var(--font-inter), -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--desk-bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  /* The desktop owns scrolling; the page itself never scrolls. */
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   Surfaces
+   Depth comes from a hairline ring and a soft shadow rather than
+   drawn highlight/shadow edges.
+   ============================================================ */
+
+.surface-raised {
+  background-color: var(--chrome);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-raised);
+}
+
+.surface-inset {
+  background-color: var(--surface-sunken);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-control);
+}
+
+.surface-card {
+  background-color: var(--surface-alt);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-panel);
+}
+
+.hairline-b {
+  border-bottom: 1px solid var(--hairline);
+}
+.hairline-t {
+  border-top: 1px solid var(--hairline);
+}
+.hairline-r {
+  border-right: 1px solid var(--hairline);
+}
+
+/*
+ * Translucent system bars. The blur itself is applied with Tailwind's
+ * backdrop utilities at each usage, a raw backdrop-filter here gets stripped
+ * by the CSS transformer.
+ */
+.material-bar {
+  background-color: var(--material-bar);
+}
+
+.material-dock {
+  background-color: var(--material-dock);
+  border: 1px solid var(--material-border);
+}
+
+/* ============================================================
+   Scrollbars, thin overlay style, no track furniture.
+   ============================================================ */
+
+.retro-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ink) 28%, transparent) transparent;
+}
+
+.retro-scroll::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+.retro-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.retro-scroll::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--ink) 26%, transparent);
+  border-radius: 99px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+.retro-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--ink) 42%, transparent);
+  background-clip: content-box;
+}
+
+.retro-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ============================================================
+   Typography
+   ============================================================ */
+
+/* Small all-caps label for eyebrows and column headings. */
+.label-micro {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+/* Large headings want tighter tracking, the way SF Display does. */
+.display-tight {
+  letter-spacing: -0.022em;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   Motion
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.sr-only-block {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+body.is-dragging,
+body.is-dragging * {
+  user-select: none !important;
+  cursor: grabbing !important;
+}
+
+@keyframes login-progress {
+  from {
+    width: 4%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.login-progress {
+  width: 4%;
+  animation: login-progress 620ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+/* Now-playing equaliser bars in the Music app. */
+@keyframes eq-bar {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.eq-bar {
+  transform-origin: bottom;
+  animation: eq-bar 900ms ease-in-out infinite;
+}
+
+/* ============================================================
+   Wallpapers
+   Pure CSS, no image payload. Replace any of these by pointing
+   background-image at a file in /public/wallpapers/.
+   ============================================================ */
+
+.desk-wall {
+  position: absolute;
+  inset: 0;
+  background-color: var(--desk-bg);
+}
+
+/* Aurora, deep indigo with a cool bloom. */
+html[data-wallpaper="aurora"] .desk-wall {
+  background-color: #131a2b;
+  background-image:
+    radial-gradient(
+      120% 80% at 18% 8%,
+      rgba(96, 132, 255, 0.42) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      110% 70% at 88% 22%,
+      rgba(72, 214, 214, 0.28) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      130% 90% at 60% 105%,
+      rgba(150, 88, 226, 0.34) 0%,
+      transparent 62%
+    ),
+    linear-gradient(168deg, #1b2440 0%, #0d1120 100%);
+}
+
+/* Dusk, warm horizon. */
+html[data-wallpaper="dusk"] .desk-wall {
+  background-color: #2a1c2b;
+  background-image:
+    radial-gradient(
+      120% 70% at 22% 96%,
+      rgba(255, 148, 92, 0.5) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      100% 60% at 82% 12%,
+      rgba(122, 138, 255, 0.34) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      90% 60% at 52% 52%,
+      rgba(226, 96, 148, 0.26) 0%,
+      transparent 60%
+    ),
+    linear-gradient(160deg, #3a2440 0%, #16101f 100%);
+}
+
+/* Graphite, neutral, gets out of the way. */
+html[data-wallpaper="graphite"] .desk-wall {
+  background-color: #24262b;
+  background-image:
+    radial-gradient(
+      100% 70% at 50% 0%,
+      rgba(255, 255, 255, 0.09) 0%,
+      transparent 60%
+    ),
+    linear-gradient(170deg, #34373e 0%, #17181c 100%);
+}
+
+/* Tide, the light one. */
+html[data-wallpaper="tide"] .desk-wall {
+  background-color: #cfd8e6;
+  background-image:
+    radial-gradient(
+      110% 70% at 20% 10%,
+      rgba(255, 255, 255, 0.85) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      110% 80% at 85% 95%,
+      rgba(126, 174, 224, 0.6) 0%,
+      transparent 60%
+    ),
+    linear-gradient(165deg, #e2eaf4 0%, #a9bcd4 100%);
+}
+
+html.theme-dark[data-wallpaper="tide"] .desk-wall {
+  background-image:
+    radial-gradient(
+      110% 70% at 20% 10%,
+      rgba(120, 150, 190, 0.28) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      110% 80% at 85% 95%,
+      rgba(60, 96, 140, 0.4) 0%,
+      transparent 60%
+    ),
+    linear-gradient(165deg, #1b2431 0%, #0c1119 100%);
+}
