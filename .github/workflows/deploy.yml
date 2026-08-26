@@ -27,13 +27,15 @@ jobs:
           node-version: 22
           cache: npm
 
+      # Pages must already be enabled on the repository with its source set to
+      # GitHub Actions. The workflow token can deploy to an existing Pages
+      # site but is not allowed to create one, so `enablement: true` fails
+      # with "Resource not accessible by integration". Enable it once under
+      # Settings, Pages, or with:
+      #   gh api -X POST repos/OWNER/REPO/pages -f build_type=workflow
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5
-        with:
-          # Creates the Pages site on the first run instead of requiring
-          # someone to set the source by hand in Settings.
-          enablement: true
 
       - run: npm ci
 
