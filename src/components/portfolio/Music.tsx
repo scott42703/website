@@ -10,6 +10,7 @@ import {
 } from "@/data/music";
 import { useMusic } from "@/lib/music-player";
 import { useVolumeControlSupported } from "@/lib/store";
+import { useIsCompact } from "@/lib/hooks";
 import {
   loadSoundCloudApi,
   PLAY_EVENT,
@@ -236,6 +237,10 @@ function TrackTable({
   embeddedId: string | null;
 }) {
   const player = useMusic();
+  // Touch has no hover and no natural double-tap, so on a phone the whole row
+  // activates on a single tap. Pointer devices keep the double-click that
+  // every desktop music library uses.
+  const compact = useIsCompact();
 
   if (tracks.length === 0) {
     return (
@@ -287,16 +292,19 @@ function TrackTable({
           const isPlaying = isCurrent && player.playing;
           const playable = Boolean(track.src);
           const isEmbedOpen = embeddedId === track.id;
+          const activate = () => {
+            if (playable) onPlay(track);
+            else if (track.embedUrl) onSelectEmbed(track);
+          };
 
           return (
             <tr
               key={track.id}
-              onDoubleClick={() =>
-                playable
-                  ? onPlay(track)
-                  : track.embedUrl && onSelectEmbed(track)
-              }
+              onClick={compact ? activate : undefined}
+              onDoubleClick={compact ? undefined : activate}
               className={`group transition-colors ${
+                compact ? "cursor-pointer" : ""
+              } ${
                 isCurrent || isEmbedOpen
                   ? "bg-[var(--accent-soft)]"
                   : "hover:bg-[color-mix(in_srgb,var(--ink)_5%,transparent)]"
@@ -306,9 +314,11 @@ function TrackTable({
                 {playable ? (
                   <button
                     type="button"
-                    onClick={() =>
-                      isPlaying ? player.toggle() : onPlay(track)
-                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (isPlaying) player.toggle();
+                      else onPlay(track);
+                    }}
                     aria-label={
                       isPlaying ? `Pause ${track.title}` : `Play ${track.title}`
                     }
@@ -328,7 +338,10 @@ function TrackTable({
                 ) : track.embedUrl ? (
                   <button
                     type="button"
-                    onClick={() => onSelectEmbed(track)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectEmbed(track);
+                    }}
                     aria-expanded={isEmbedOpen}
                     aria-label={
                       (isEmbedOpen

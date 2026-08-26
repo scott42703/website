@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { personal } from "@/data/personal";
 import type { SectionId } from "@/data/types";
-import { useClock, useDismissOnOutside } from "@/lib/hooks";
+import { useClock, useDismissOnOutside, useIsCompact } from "@/lib/hooks";
 import { useDesktopPrefs, wallpapers } from "@/lib/theme";
 import { useOpenApp } from "@/lib/use-open-app";
 import { useWindows } from "@/lib/window-manager";
@@ -39,6 +39,7 @@ export function MenuBar({ onLogOut }: { onLogOut: () => void }) {
   const api = useWindows();
   const prefs = useDesktopPrefs();
   const clock = useClock();
+  const compact = useIsCompact();
 
   const close = useCallback(() => setOpen(null), []);
   useDismissOnOutside(open !== null, close, barRef);
@@ -157,17 +158,46 @@ export function MenuBar({ onLogOut }: { onLogOut: () => void }) {
     },
   ];
 
+  const byId = (id: string) => menus.find((m) => m.id === id)!;
+
+  /**
+   * Six menus plus the clock need more than a phone has. On narrow screens
+   * keep the name menu, Go (every section) and View (display settings), and
+   * fold "About This Portfolio" up into the name menu so nothing is stranded.
+   * Everything in File and Edit is reachable from the Dock or the windows.
+   */
+  const visibleMenus: Menu[] = compact
+    ? [
+        {
+          ...byId("system"),
+          items: [
+            byId("system").items[0],
+            {
+              label: "About This Portfolio",
+              onSelect: () => openApp("about-portfolio"),
+            },
+            ...byId("system").items.slice(1),
+          ],
+        },
+        byId("go"),
+        byId("view"),
+      ]
+    : menus;
+
   return (
     <div
       ref={barRef}
-      className="material-bar backdrop-blur-[20px] backdrop-saturate-[180%] hairline-b relative z-[9000] flex h-[28px] shrink-0 items-center justify-between pr-2.5 pl-2 select-none"
+      className="material-bar backdrop-blur-[20px] backdrop-saturate-[180%] hairline-b relative z-[9000] flex h-[28px] shrink-0 items-center justify-between gap-2 pr-2.5 pl-2 select-none"
     >
-      <nav aria-label="Main menu" className="flex min-w-0 items-center">
+      <nav
+        aria-label="Main menu"
+        className="flex min-w-0 items-center overflow-hidden"
+      >
         <span className="mr-1 grid h-[22px] w-[22px] shrink-0 place-items-center text-[var(--menubar-ink)]">
           <ComputerGlyph size={15} />
         </span>
 
-        {menus.map((menu) => (
+        {visibleMenus.map((menu) => (
           <MenuButton
             key={menu.id}
             menu={menu}
@@ -259,7 +289,7 @@ function MenuButton({
         <ul
           role="menu"
           aria-label={menu.label}
-          className="material-bar backdrop-blur-[20px] backdrop-saturate-[180%] absolute top-full left-0 z-50 mt-1 min-w-[220px] rounded-[8px] p-1 shadow-[var(--shadow-menu)]"
+          className="material-bar retro-scroll backdrop-blur-[20px] backdrop-saturate-[180%] absolute top-full left-0 z-50 mt-1 max-h-[70vh] min-w-[220px] overflow-y-auto rounded-[8px] p-1 shadow-[var(--shadow-menu)]"
         >
           {menu.items.map((item, i) =>
             item.divider ? (
